@@ -4,14 +4,17 @@ import global.RID;
 import global.SystemDefs;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import diskmgr.DiskMgrException;
 import diskmgr.FileIOException;
 import diskmgr.InvalidPageNumberException;
+import diskmgr.Page;
 
 public class Heapfile {
 
 	String name;
+	ArrayList<Slot> slots;
 	
 	public Heapfile(String _name) throws HFException, HFBufMgrException, HFDiskMgrException, IOException{
 		name=_name;
