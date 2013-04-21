@@ -25,6 +25,7 @@ public class test {
 			pid.writeToByteArray(p, 4);
 			System.out.println(getNum(p,4));
 			Tuple t = new Tuple(p,0,8);
+			p=null;
 			p=t.getTupleByteArray();
 			System.out.println(getNum(p,0));
 			System.out.println(getNum(p,4));
