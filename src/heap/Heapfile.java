@@ -105,8 +105,17 @@ public class Heapfile {
 	 }
 	 
 	 public boolean deleteRecord(RID rid) throws InvalidSlotNumberException, InvalidTupleSizeException, HFException, HFBufMgrException, HFDiskMgrException, Exception{
-		
-		 return false;
+		 Page page=null;
+		 SystemDefs.JavabaseBM.pinPage(rid.pageNo, page, true);
+		 HFPage hfp = new HFPage(page);
+		 
+		 try{
+			 hfp.deleteRecord(rid);
+			 return true;
+		 }
+		 catch(InvalidSlotNumberException e){
+			 return false;
+		 }
 	 }
 	 
 	 public boolean updateRecord(RID rid, Tuple newtuple) throws InvalidSlotNumberException, InvalidUpdateException, InvalidTupleSizeException, HFException, HFDiskMgrException, HFBufMgrException, Exception{
@@ -132,16 +141,14 @@ public class Heapfile {
 	 }
 	 
 	 public void deleteFile() throws InvalidSlotNumberException, FileAlreadyDeletedException, InvalidTupleSizeException, HFBufMgrException, HFDiskMgrException, IOException{
-		 Page page=null;
-		 SystemDefs.JavabaseBM.pinPage(rid.pageNo, page, true);
-		 HFPage hfp = new HFPage(page);
-		 
-		 try{
-			 hfp.deleteRecord(rid);
-			 return true;
-		 }
-		 catch(InvalidSlotNumberException e){
-			 return false;
-		 }
+		 try {
+				
+			 SystemDefs.JavabaseDB.delete_file_entry(name);
+			
+		} catch (FileEntryNotFoundException | FileIOException
+				| InvalidPageNumberException | DiskMgrException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	 }
 }
