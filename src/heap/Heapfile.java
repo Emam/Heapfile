@@ -1,10 +1,19 @@
 package heap;
 
+import global.PageId;
 import global.RID;
 import global.SystemDefs;
 
 import java.io.IOException;
-import java.util.ArrayList;
+
+import bufmgr.BufMgrException;
+import bufmgr.BufferPoolExceededException;
+import bufmgr.HashOperationException;
+import bufmgr.InvalidFrameNumberException;
+import bufmgr.PageNotReadException;
+import bufmgr.PagePinnedException;
+import bufmgr.PageUnpinnedException;
+import bufmgr.ReplacerException;
 
 import diskmgr.DiskMgrException;
 import diskmgr.FileIOException;
@@ -14,7 +23,7 @@ import diskmgr.Page;
 public class Heapfile {
 
 	String name;
-	ArrayList<Slot> slots;
+	HFPage header;
 	
 	public Heapfile(String _name) throws HFException, HFBufMgrException, HFDiskMgrException, IOException{
 		name=_name;
@@ -39,7 +48,45 @@ public class Heapfile {
 	}
 	
 	 public RID insertRecord(byte recPtr[]) throws InvalidSlotNumberException, InvalidTupleSizeException, SpaceNotAvailableException, HFException, HFBufMgrException, HFDiskMgrException, IOException{
-		return null;
+		 RID r=header.firstRecord();
+		 Tuple t=header.getRecord(r);
+		 try {
+			
+			PageId pid=new PageId(t.getIntFld(1));
+			Page p=null;
+			SystemDefs.JavabaseBM.pinPage(pid, p, false);
+			HFPage hp=new HFPage(p);
+			return hp.insertRecord(recPtr);
+			
+		} catch (FieldNumberOutOfBoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ReplacerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (HashOperationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (PageUnpinnedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidFrameNumberException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (PageNotReadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BufferPoolExceededException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (PagePinnedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BufMgrException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 return null;
 	 }
 	 
 	 public boolean deleteRecord(RID rid) throws InvalidSlotNumberException, InvalidTupleSizeException, HFException, HFBufMgrException, HFDiskMgrException, Exception{
@@ -48,7 +95,12 @@ public class Heapfile {
 	 
 	 public boolean updateRecord(RID rid,
              Tuple newtuple) throws InvalidSlotNumberException, InvalidUpdateException, InvalidTupleSizeException, HFException, HFDiskMgrException, HFBufMgrException, Exception{
-				return false;
+		 Page page=null;
+		 SystemDefs.JavabaseBM.pinPage(rid.pageNo, page, false);
+		 HFPage cur=new HFPage(page);
+		 Tuple t=cur.getRecord(rid);
+		 t.tupleSet(newtuple.getTupleByteArray(), newtuple.getOffset(), newtuple.getLength());
+		 return true;
 	 }
 	
 	 public Tuple getRecord(RID rid) throws InvalidSlotNumberException, InvalidTupleSizeException, HFException, HFDiskMgrException, HFBufMgrException, Exception{
