@@ -117,5 +117,16 @@ public class Heapfile {
 	 }
 	 
 	 public void deleteFile() throws InvalidSlotNumberException, FileAlreadyDeletedException, InvalidTupleSizeException, HFBufMgrException, HFDiskMgrException, IOException{
+		 Page page=null;
+		 SystemDefs.JavabaseBM.pinPage(rid.pageNo, page, true);
+		 HFPage hfp = new HFPage(page);
+		 
+		 try{
+			 hfp.deleteRecord(rid);
+			 return true;
+		 }
+		 catch(InvalidSlotNumberException e){
+			 return false;
+		 }
 	 }
 }
