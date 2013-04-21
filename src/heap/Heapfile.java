@@ -4,6 +4,7 @@ import global.PageId;
 import global.RID;
 import global.SystemDefs;
 
+import java.awt.print.Pageable;
 import java.io.IOException;
 
 import bufmgr.BufMgrException;
@@ -44,6 +45,7 @@ public class Heapfile {
 	}
 	
 	public int getRecCnt() throws InvalidSlotNumberException, InvalidTupleSizeException, HFDiskMgrException, HFBufMgrException, IOException{
+		
 		return 0;
 	}
 	
@@ -51,7 +53,6 @@ public class Heapfile {
 		 RID r=header.firstRecord();
 		 Tuple t=header.getRecord(r);
 		 try {
-			
 			PageId pid=new PageId(t.getIntFld(1));
 			Page p=null;
 			SystemDefs.JavabaseBM.pinPage(pid, p, false);
@@ -90,11 +91,12 @@ public class Heapfile {
 	 }
 	 
 	 public boolean deleteRecord(RID rid) throws InvalidSlotNumberException, InvalidTupleSizeException, HFException, HFBufMgrException, HFDiskMgrException, Exception{
-		return false;
+		
+		 return false;
 	 }
 	 
-	 public boolean updateRecord(RID rid,
-             Tuple newtuple) throws InvalidSlotNumberException, InvalidUpdateException, InvalidTupleSizeException, HFException, HFDiskMgrException, HFBufMgrException, Exception{
+	 public boolean updateRecord(RID rid, Tuple newtuple) throws InvalidSlotNumberException, InvalidUpdateException, InvalidTupleSizeException, HFException, HFDiskMgrException, HFBufMgrException, Exception{
+		 
 		 Page page=null;
 		 SystemDefs.JavabaseBM.pinPage(rid.pageNo, page, false);
 		 HFPage cur=new HFPage(page);
@@ -104,7 +106,10 @@ public class Heapfile {
 	 }
 	
 	 public Tuple getRecord(RID rid) throws InvalidSlotNumberException, InvalidTupleSizeException, HFException, HFDiskMgrException, HFBufMgrException, Exception{
-		return null;
+		Page page=null;
+		SystemDefs.JavabaseBM.pinPage(rid.pageNo, page, true);
+		HFPage hfp = new HFPage(page);
+		return hfp.getRecord(rid);
 	 }
 	 
 	 public Scan openScan() throws InvalidTupleSizeException, IOException{
