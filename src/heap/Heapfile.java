@@ -18,6 +18,8 @@ import bufmgr.ReplacerException;
 import diskmgr.DiskMgrException;
 import diskmgr.FileIOException;
 import diskmgr.InvalidPageNumberException;
+import diskmgr.InvalidRunSizeException;
+import diskmgr.OutOfSpaceException;
 import diskmgr.Page;
 
 public class Heapfile {
@@ -30,14 +32,26 @@ public class Heapfile {
 		try {
 			if(SystemDefs.JavabaseDB.get_file_entry(name)==null){
 				SystemDefs.JavabaseDB.openDB(name);
+				SystemDefs.JavabaseDB.allocate_page(new PageId());
 			}
+			Page p=null;
+			SystemDefs.JavabaseDB.read_page(new PageId(), p);
+			header = new HFPage(p);
 		} catch (InvalidPageNumberException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new HFBufMgrException();
+			//e.printStackTrace();
 		} catch (FileIOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (DiskMgrException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			throw new HFDiskMgrException();
+		} catch (OutOfSpaceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidRunSizeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -99,6 +113,7 @@ public class Heapfile {
 		 SystemDefs.JavabaseBM.pinPage(rid.pageNo, page, false);
 		 HFPage cur=new HFPage(page);
 		 Tuple t=cur.getRecord(rid);
+		 if(t==null)return false;
 		 t.tupleSet(newtuple.getTupleByteArray(), newtuple.getOffset(), newtuple.getLength());
 		 return true;
 	 }
